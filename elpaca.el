@@ -1104,11 +1104,14 @@ The keyword's value is expected to be one of the following:
       (if (not success) (elpaca--fail e stderr) (version-to-list (string-trim stdout))))))
 
 (defvar elpaca--core-date
-  (list (or (and emacs-build-time (string-to-number (format-time-string "%Y%m%d" emacs-build-time)))
-            (alist-get emacs-version '(("27.1" . 20200804) ("27.2" . 20210319) ("28.1" . 20220403)
-                                       ("28.2" . 20220912) ("29.1" . 20230730))
-                       nil nil #'equal)
-            (warn "Unable to determine elpaca--core-date"))))
+  (let ((current-date (string-to-number (format-time-string "%Y%m%d"))))
+    (list (or (and emacs-build-time (string-to-number (format-time-string "%Y%m%d" emacs-build-time)))
+              (alist-get emacs-version '(("27.1" . 20200804) ("27.2" . 20210319) ("28.1" . 20220403)
+                                                             ("28.2" . 20220912) ("29.1" . 20230730))
+                         nil nil #'equal)
+              (progn
+                (warn (format "Unable to determine elpaca--core-date, using %d" current-date))
+                current-date)))))
 
 (defun elpaca--declared-version (e)
   "Return E's version as declared in recipe or main file's metadata."
